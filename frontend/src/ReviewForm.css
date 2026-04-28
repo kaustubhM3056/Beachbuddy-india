@@ -1,0 +1,86 @@
+ .review-form-container {
+  background: rgba(0, 0, 0, 0.1); /* Darker glass */
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 25px 30px;
+  margin-top: 25px;
+  border-radius: 0 0 15px 15px;
+  margin: 30px -30px -25px -30px; /* Pull to edges of card */
+}
+
+.review-form-container h3 {
+  margin-top: 0;
+  color: #ffffff; /* White text */
+}
+
+.ratings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  color: #e0e0e0; /* Light text */
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+.form-group select,
+.form-group textarea,
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 16px;
+  font-family: 'Poppins', sans-serif;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box; 
+  background-color: #f4f8fa; /* Keep forms light */
+  color: #333;
+}
+
+.form-group textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.submit-review-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  background-color: #28a745; /* Green */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 10px;
+}
+
+.submit-review-btn:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.submit-review-btn:disabled {
+  background-color: #a0a0a0;
+}
+
+.error-message {
+  color: #dc3545;
+  background-color: #fbebee;
+  border: 1px solid #dc3545;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 15px;
+  font-size: 14px;
+}

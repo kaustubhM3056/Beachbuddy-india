@@ -1,0 +1,124 @@
+/* --- This is the "Glass" card for the whole page --- */
+.my-reviews-container {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  margin-top: 30px; 
+  animation: fadeIn 0.5s ease-out;
+  padding: 30px 30px 40px 30px;
+  text-align: center;
+}
+
+.my-reviews-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  padding-bottom: 15px;
+  margin-bottom: 25px;
+}
+
+.my-reviews-container h2 {
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  margin: 0;
+}
+
+.back-button {
+  background-color: #0077b6;
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif; 
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.back-button:hover {
+  background-color: #005f87;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.review-list {
+  text-align: left;
+}
+
+/* We can re-use the same styles from ReviewList.css */
+.review-item {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background: #fafafa; /* White background for readability */
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.review-header strong {
+  color: #0077b6;
+  font-size: 1.1rem; /* Make beach name bigger */
+}
+
+.review-date {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.amenities-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+}
+
+.amenity-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #555;
+  flex-wrap: wrap;
+}
+
+.stars {
+  font-size: 1rem;
+  color: #f5c518; /* Gold color for stars */
+  white-space: nowrap;
+}
+.stars-na {
+  font-size: 0.9rem;
+  color: #999;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.review-text {
+  font-size: 1rem;
+  color: #333;
+  margin: 0;
+  padding-top: 5px;
+  white-space: pre-wrap; /* This respects line breaks */
+}
+
+.error-message {
+  color: #dc3545; /* Red */
+  background-color: #fbebee;
+  border: 1px solid #dc3545;
+  border-radius: 8px;
+  padding: 10px;
+  margin: 15px 0;
+  font-size: 14px;
+}

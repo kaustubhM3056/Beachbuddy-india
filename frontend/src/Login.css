@@ -1,0 +1,106 @@
+/* --- THIS IS THE NEW UPGRADED LOGIN PAGE STYLING --- */
+
+/* 1. The container is now the FULL PAGE background */
+.login-container {
+  /* Use the same hero image as your main app */
+  background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1507525428034-b723a9964d39');
+  background-size: cover;
+  background-position: center;
+  
+  /* Make it full screen */
+  min-height: 100vh; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Poppins', sans-serif;
+  padding: 20px;
+  box-sizing: border-box; /* Ensures padding doesn't break height */
+}
+
+/* 2. This is the new "floating card" for the login form */
+.login-box {
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+/* 3. Style the title inside the card */
+.login-box h1 {
+  color: #0077b6; /* Your app's main blue color */
+  margin-top: 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.login-box h2 {
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 25px;
+}
+
+/* 4. Style the form elements */
+.input-group {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #555;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 16px;
+  font-family: 'Poppins', sans-serif;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box; /* Important for padding */
+}
+
+/* 5. Style the buttons */
+.login-button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  background-color: #0077b6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-bottom: 15px;
+}
+
+.login-button:hover {
+  background-color: #005f87;
+}
+
+.toggle-button {
+  background: none;
+  border: none;
+  color: #0077b6;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.error-message {
+  color: #dc3545; /* Red */
+  background-color: #fbebee;
+  border: 1px solid #dc3545;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  text-align: left;
+} 
