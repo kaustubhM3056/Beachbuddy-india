@@ -11,12 +11,12 @@ from datetime import datetime, timedelta
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-# --- 1. INITIALIZE FLASK FIRST ---
+# 1. CREATE THE APP FIRST! (This fixes the NameError)
 load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-# --- 2. INITIALIZE FIREBASE SECOND ---
+# 2. INITIALIZE FIREBASE SECOND!
 service_account_json = os.getenv("FIREBASE_SERVICE_ACCOUNT")
 
 if service_account_json:
@@ -28,7 +28,6 @@ if service_account_json:
     except Exception as e:
         print(f"Error initializing Firebase from Env Var: {e}")
 else:
-    # Fallback: Use the local file ONLY if running on your local machine
     if os.path.exists("serviceAccountKey.json"):
         cred = credentials.Certificate("serviceAccountKey.json")
         firebase_admin.initialize_app(cred)
@@ -36,7 +35,13 @@ else:
     else:
         print("Warning: Firebase credentials not found!")
 
+# 3. SET UP DATABASE & CACHE
 db = firestore.client()
+tide_cache = {}
+
+# -----------------
+# YOUR BEACH LOCATIONS AND ROUTES GO BELOW THIS LINE!
+# -----------------
 
 # 🔥 ---------------------------
 # ✅ CACHE STORAGE (NEW)
