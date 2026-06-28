@@ -1,5 +1,6 @@
 import os
-import time   # ✅ NEW (for caching)
+import time
+import json
 import requests
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -8,17 +9,34 @@ from algorithm import calculate_bsi
 from datetime import datetime, timedelta
 
 import firebase_admin
-from firebase_admin import credentials, firestore, auth
+from firebase_admin import credentials, firestore
 
-# --- Initialize Firebase Admin ---
-cred = credentials.Certificate("serviceAccountKey.json")
-firebase_admin.initialize_app(cred)
-db = firestore.client()
-# --- END NEW FIREBASE STUFF ---
-
+# --- 1. INITIALIZE FLASK FIRST ---
 load_dotenv()
 app = Flask(__name__)
 CORS(app)
+
+# --- 2. INITIALIZE FIREBASE SECOND ---
+service_account_json = os.getenv("FIREBASE_SERVICE_ACCOUNT")
+
+if service_account_json:
+    try:
+        cred_dict = json.loads(service_account_json)
+        cred = credentials.Certificate(cred_dict)
+        firebase_admin.initialize_app(cred)
+        print("Firebase initialized successfully using Environment Variables.")
+    except Exception as e:
+        print(f"Error initializing Firebase from Env Var: {e}")
+else:
+    # Fallback: Use the local file ONLY if running on your local machine
+    if os.path.exists("serviceAccountKey.json"):
+        cred = credentials.Certificate("serviceAccountKey.json")
+        firebase_admin.initialize_app(cred)
+        print("Firebase initialized using local serviceAccountKey.json.")
+    else:
+        print("Warning: Firebase credentials not found!")
+
+db = firestore.client()
 
 # 🔥 ---------------------------
 # ✅ CACHE STORAGE (NEW)
@@ -64,11 +82,11 @@ BEACH_LOCATIONS = {
     "baga beach": {"lat": 15.5582, "lon": 73.7523, "city": "Goa", "image_url": "https://images.unsplash.com/photo-1757702244726-00198554c4a0?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmFnYSUyMGJlYWNoJTIwZ29hfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=1000"},
     "calangute beach": {"lat": 15.5485, "lon": 73.7629, "city": "Goa", "image_url": "https://images.unsplash.com/photo-1597820334272-af87b2d917c1?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2FsYW5ndXRlJTIwYmVhY2h8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&q=60&w=600"},
     "palolem beach": {"lat": 15.0099, "lon": 74.0237, "city": "Goa", "image_url": "https://plus.unsplash.com/premium_photo-1697729701846-e34563b06d47?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fHBhbG9sZW0lMjBiZWFjaHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=600"},
-    "goa": {"lat": 15.3173, "lon": 74.1240, "city": "Goa", "image_url": "https://images.unsplash.com/photo-1757702244726-00198554c4a0?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmFnYSUyMGJlYWNoJTIwZ29hfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=1000"}, # Fallback
+    "goa": {"lat": 15.3173, "lon": 74.1240, "city": "Goa", "image_url": "https://images.unsplash.com/photo-1757702244726-00198554c4a0?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmFnYSUyMGJlYWNoJTIwZ29hfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=1000"},
     "juhu beach": {"lat": 19.1072, "lon": 72.8263, "city": "Mumbai", "image_url": "https://images.unsplash.com/photo-1710144481132-b1702639d4e7?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8anVodSUyMGJlYWNofGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=600"},
     "tarkarli beach": {"lat": 16.0359, "lon": 73.4795, "city": "Tarkarli", "image_url": "https://images.unsplash.com/photo-1672567004357-7dd4f4ed8663?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8dGFya2FybGklMjBiZWFjaHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=600"},
     "ganpatipule beach": {"lat": 17.1472, "lon": 73.2687, "city": "Ganpatipule", "image_url": "https://images.unsplash.com/photo-1616477145655-d30b1ec7882f?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z2FucGF0aXB1bGUlMjBiZWFjaHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=600"},
-    "mumbai": {"lat": 19.0760, "lon": 72.8777, "city": "Mumbai", "image_url": "https://images.unsplash.com/photo-1710144481132-b1702639d4e7?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8anVodSUyMGJlYWNofGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=600"}, # Fallback
+    "mumbai": {"lat": 19.0760, "lon": 72.8777, "city": "Mumbai", "image_url": "https://images.unsplash.com/photo-1710144481132-b1702639d4e7?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8anVodSUyMGJlYWNofGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=600"},
     "kovalam beach": {"lat": 8.3999, "lon": 76.9789, "city": "Kochi", "image_url": "https://images.unsplash.com/photo-1593206216275-2408d30438cc?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8a292YWx1bSUyMGJlYWNoJTIwa2VybGF8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&q=60&w=600"}, 
     "varkala beach": {"lat": 8.7371, "lon": 76.7128, "city": "Varkala", "image_url": "https://images.unsplash.com/photo-1708149733421-cc9159810869?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8dmFya2FsYSUyMGJlYWNofGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=600"},
     "marari beach": {"lat": 9.6009, "lon": 76.3134, "city": "Mararikulam", "image_url": "https://images.unsplash.com/photo-1621680860205-c476fb092ad4?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bWFyYXJpJTIwYmVhY2h8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&q=60&w=600"},
@@ -95,7 +113,7 @@ def get_weather(city):
     response = requests.get(url)
     return jsonify(response.json())
 
- # --- FUTURE FORECAST ROUTE (LAT/LON BASED 🔥) ---
+# --- FUTURE FORECAST ROUTE (LAT/LON BASED 🔥) ---
 @app.route('/forecast/<beach>')
 def get_forecast(beach):
     search_key = beach.lower()
@@ -141,7 +159,6 @@ def get_forecast(beach):
     except Exception as e:
         print("Forecast error:", e)
         return jsonify([])
-from datetime import datetime, timedelta
 
 # --- SMART FUTURE PREDICTION ---
 @app.route('/predict')
@@ -224,7 +241,7 @@ def get_tide(lat, lon):
     else:
         return jsonify({"error": "No tide data found", "details": data})
 
- # --- BSI Route (FINAL WITH CACHING + ADVICE 🔥) ---
+# --- BSI Route (FINAL WITH CACHING + ADVICE 🔥) ---
 @app.route('/bsi')
 def get_bsi():
     beach_name = request.args.get('beach')
@@ -237,6 +254,11 @@ def get_bsi():
     if not location_data:
         return jsonify({"error": f"Sorry, we don't have data for '{beach_name}'."}), 404
 
+    search_key = beach_name.lower()
+    location_data = BEACH_LOCATIONS.get(search_key)
+    
+    if not location_data:
+        return jsonify({"error": f"Sorry, we don't have data for '{beach_name}'."}), 404
     lat = location_data["lat"]
     lon = location_data["lon"]
     is_blue_flag = search_key in BLUE_FLAG_BEACHES
@@ -381,6 +403,7 @@ def get_leaderboard():
     sorted_results = sorted(results, key=lambda x: x["bsi_score"], reverse=True)[:5]
     
     return jsonify(sorted_results)
+
 # --- Get Reviews Route (FIXED to handle old reviews) ---
 @app.route('/get_reviews')
 def get_reviews():
@@ -433,6 +456,50 @@ def get_my_reviews():
     except Exception as e:
         print(f"Error getting my reviews: {e}")
         return jsonify({"error": str(e)}), 500
+
+# 🔥 --- NEW: Submit Live Crowd Vote Route ---
+@app.route('/submit_crowd_vote', methods=['POST'])
+def submit_crowd_vote():
+    auth_header = request.headers.get('Authorization')
+    if not auth_header:
+        return jsonify({"error": "Authorization header is missing"}), 401
+    
+    try:
+        # 1. Verify the secure Firebase Token
+        token = auth_header.split(' ')[1]
+        decoded_token = auth.verify_id_token(token)
+        uid = decoded_token['uid']
+        
+        # 2. Get the data from React
+        data = request.json
+        beach_name = data.get('beachName')
+        crowd_vote = data.get('crowdLevel')  # Will be "Quiet", "Busy", or "Packed"
+        
+        # 3. Convert text vote to a number for the Stars UI (1, 3, or 5)
+        crowd_score = 1
+        if crowd_vote == "Busy":
+            crowd_score = 3
+        elif crowd_vote == "Packed":
+            crowd_score = 5
+            
+        # 4. Save it as a lightweight "Review" so it instantly counts for Gamification!
+        new_vote = {
+            "userId": uid,
+            "beachName": beach_name.title() if beach_name else "Unknown Beach",
+            "crowdLevel": crowd_score,
+            "reviewText": f"🕒 Live Crowd Report: {crowd_vote}",
+            "createdAt": datetime.now(),
+            "isLiveVote": True
+        }
+        
+        db.collection('reviews').add(new_vote)
+        
+        return jsonify({"success": True, "message": "Vote saved successfully!"})
+        
+    except Exception as e:
+        print(f"Error saving crowd vote: {e}")
+        return jsonify({"error": str(e)}), 500
+
 
 # --- Run App ---
 if __name__ == '__main__':
