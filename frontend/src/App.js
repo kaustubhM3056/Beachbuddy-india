@@ -1,4 +1,4 @@
- import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import Leaderboard from './Leaderboard.js';
 import Login from './Login.js'; 
@@ -39,7 +39,7 @@ function App() {
 
   useEffect(() => {
     const fetchLeaderboard = () => {
-      fetch('http://127.0.0.1:5000/leaderboard')
+        fetch('https://beachbuddy-api.onrender.com/leaderboard')
         .then(res => res.json())
         .then(data => {
           setLeaderboard(data); 
@@ -65,7 +65,7 @@ function App() {
     setForecast([]);
     setShowReviewForm(false); 
     
-    fetch(`http://127.0.0.1:5000/bsi?beach=${encodeURIComponent(beachSearch)}`)
+      fetch(`https://beachbuddy-api.onrender.com/bsi?beach=${encodeURIComponent(beachSearch)}`)
       .then(response => response.json())
       .then(data => {
         if (data.error) {
@@ -75,7 +75,7 @@ function App() {
           setCurrentPage("beach");
 
           // ✅ FORECAST
-          fetch(`http://127.0.0.1:5000/forecast/${encodeURIComponent(beachSearch)}`)
+          fetch(`https://beachbuddy-api.onrender.com/forecast/${encodeURIComponent(beachSearch)}`)
           .then(res => res.json())
           .then(data => {
            console.log("FORECAST:", data);
