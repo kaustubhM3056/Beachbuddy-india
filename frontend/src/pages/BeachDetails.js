@@ -1,0 +1,215 @@
+ import React, { useState } from "react";
+import Sidebar from "../components/Sidebar";
+import Overview from "../components/Overview";
+import BeachAI from "../BeachAI"; 
+import FuturePrediction from "./FuturePrediction"; 
+import MapView from "../MapView"; 
+import AverageRatings from "../AverageRatings";
+import ReviewList from "../ReviewList";
+import ReviewForm from "../ReviewForm";
+import NearbyPlaces from "../components/NearbyPlaces";
+import Photos from '../components/Photos';
+
+function BeachDetails({ bsiData, onBackToHome }) {
+  const [activeTab, setActiveTab] = useState("overview");
+  const [showReviews, setShowReviews] = useState(false);
+  const [showWriteReview, setShowWriteReview] = useState(false);
+
+  if (!bsiData) return null;
+
+  return (
+    <div style={{
+      backgroundImage: 'url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1920&auto=format&fit=crop")',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundAttachment: 'fixed',
+      minHeight: '100vh',
+      width: '100%',
+      position: 'relative',
+      display: 'flex',
+      justifyContent: 'center'
+    }}>
+      
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+        backgroundColor: 'rgba(15, 23, 42, 0.65)', zIndex: 1
+      }}></div>
+
+      <div style={{ 
+        display: 'flex', 
+        width: '100%', 
+        maxWidth: '1300px', 
+        margin: '40px auto', 
+        zIndex: 2, 
+        gap: '40px', 
+        padding: '0 20px',
+        alignItems: 'flex-start'
+      }}>
+        
+        {/* LEFT SIDE: Floating Sidebar */}
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onBackToHome={onBackToHome}
+        />
+
+        {/* RIGHT SIDE: Dynamic Content */}
+        <div style={{ flex: 1 }}>
+          
+          {activeTab === "overview" && <Overview bsiData={bsiData} />}
+          
+          {/* The Nearby Places Tab */}
+          {activeTab === "nearby" && <NearbyPlaces beachName={bsiData.city} />}
+          
+          {/* 🔥 NEW PHOTOS TAB (Now using our dedicated component & backend data!) */}
+          {activeTab === "photos" && <Photos bsiData={bsiData} />}
+          
+          {activeTab === "ai" && (
+            <div style={styles.glassContainer}>
+              <h2 style={styles.header}>Beach AI Guide</h2>
+              <BeachAI data={bsiData} />
+            </div>
+          )}
+
+          {activeTab === "prediction" && <FuturePrediction beachName={bsiData.city} />}
+          
+          {activeTab === "map" && (
+            <div style={styles.glassContainer}>
+              <h2 style={styles.header}>Live Map Location</h2>
+              <div style={{ borderRadius: '16px', overflow: 'hidden', zIndex: 0, position: 'relative' }}>
+                <MapView lat={bsiData.lat} lon={bsiData.lon} name={bsiData.city} />
+              </div>
+            </div>
+          )}
+
+          {activeTab === "reviews" && (
+            <div style={styles.glassContainer}>
+              <h2 style={styles.header}>Community Reviews</h2>
+              
+              <AverageRatings averages={bsiData.average_ratings} />
+              
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginTop: '30px' }}>
+                <button 
+                  onClick={() => {
+                    setShowWriteReview(!showWriteReview);
+                    if (!showWriteReview) setShowReviews(false);
+                  }}
+                  style={showWriteReview ? styles.cancelButton : styles.actionButton}
+                >
+                  {showWriteReview ? "Cancel" : "✍️ Write a Review"}
+                </button>
+
+                <button 
+                  onClick={() => {
+                    setShowReviews(!showReviews);
+                    if (!showReviews) setShowWriteReview(false);
+                  }}
+                  style={showReviews ? styles.activeToggleButton : styles.inactiveToggleButton}
+                >
+                  {showReviews ? "Hide Recent Reviews" : "Show Recent Reviews"}
+                </button>
+              </div>
+
+              {showWriteReview && (
+                <div style={styles.innerGlassPanel}>
+                  <h3 style={{ marginTop: 0, color: 'white', marginBottom: '15px' }}>Submit Your Review</h3>
+                  <ReviewForm 
+                    beachName={bsiData.city} 
+                    onReviewSubmitted={() => {
+                      setShowWriteReview(false);
+                      setShowReviews(true);
+                    }} 
+                  />
+                </div>
+              )}
+
+              {showReviews && (
+                <div style={{ marginTop: '30px', borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: '20px' }}>
+                  <ReviewList beachName={bsiData.city} />
+                </div>
+              )}
+              
+            </div>
+          )}
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const styles = {
+  glassContainer: {
+    background: 'rgba(255, 255, 255, 0.1)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    borderRadius: '24px',
+    padding: '40px',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    color: 'white',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)'
+  },
+  header: {
+    marginTop: 0, 
+    marginBottom: '25px', 
+    borderBottom: '1px solid rgba(255,255,255,0.2)', 
+    paddingBottom: '15px',
+    fontSize: '28px',
+    fontWeight: '800'
+  },
+  innerGlassPanel: {
+    marginTop: '25px', 
+    padding: '25px', 
+    background: 'rgba(0,0,0,0.3)', 
+    borderRadius: '16px', 
+    border: '1px solid rgba(255,255,255,0.1)'
+  },
+  actionButton: {
+    padding: '14px 28px',
+    borderRadius: '12px',
+    border: 'none',
+    backgroundColor: '#00a8ff',
+    color: 'white',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 15px rgba(0, 168, 255, 0.3)'
+  },
+  cancelButton: {
+    padding: '14px 28px',
+    borderRadius: '12px',
+    border: 'none',
+    backgroundColor: '#ff6b6b',
+    color: 'white',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 15px rgba(255, 107, 107, 0.3)'
+  },
+  activeToggleButton: {
+    padding: '14px 28px',
+    borderRadius: '12px',
+    border: '1px solid rgba(255, 255, 255, 0.4)',
+    background: 'rgba(255, 255, 255, 0.2)',
+    color: 'white',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease'
+  },
+  inactiveToggleButton: {
+    padding: '14px 28px',
+    borderRadius: '12px',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    background: 'rgba(0, 0, 0, 0.3)',
+    color: 'white',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease'
+  }
+};
+
+export default BeachDetails;

@@ -2,16 +2,11 @@
 import './App.css';
 import Leaderboard from './Leaderboard.js';
 import Login from './Login.js'; 
-import ReviewForm from './ReviewForm.js';
-import ReviewList from './ReviewList.js';
-import AverageRatings from './AverageRatings.js'; 
-import WeatherIcon from './WeatherIcon.js';
 import MyReviews from './MyReviews.js'; 
 import { auth } from './firebase'; 
 import { onAuthStateChanged, signOut } from "firebase/auth"; 
-import BeachAI from "./BeachAI";
 import 'leaflet/dist/leaflet.css';
-import MapView from './MapView';
+import BeachDetails from "./pages/BeachDetails";
 
 function LoadingSpinner() {
   return (
@@ -25,25 +20,19 @@ function App() {
   const [beachSearch, setBeachSearch] = useState("Baga Beach");
   const [bsiData, setBsiData] = useState(null);
   const [loading, setLoading] = useState(false);
-
   const [forecast, setForecast] = useState([]);
-
   const [leaderboard, setLeaderboard] = useState([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(true);
-
   const [user, setUser] = useState(null);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [viewMode, setViewMode] = useState('home');
-
-  // 🔥 NEW STATES (ADDED)
-  const [selectedDateTime, setSelectedDateTime] = useState("");
-  const [predictionData, setPredictionData] = useState(null);
-  const [predictionError, setPredictionError] = useState("");
+  const [currentPage, setCurrentPage] = useState("home");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser); 
       setViewMode('home'); 
+      setCurrentPage('home');
     });
     return () => unsubscribe();
   }, []);
@@ -83,8 +72,9 @@ function App() {
           setBsiData({ rating: `Error: Sorry, we don't have data for '${beachSearch}'` });
         } else {
           setBsiData(data);
+          setCurrentPage("beach");
 
-          // ✅ FORECAST (unchanged)
+          // ✅ FORECAST
           fetch(`http://127.0.0.1:5000/forecast/${encodeURIComponent(beachSearch)}`)
           .then(res => res.json())
           .then(data => {
@@ -109,35 +99,10 @@ function App() {
       });
   };
 
-  // 🔥 NEW FUNCTION (ADDED)
-  const handlePrediction = () => {
-    if (!selectedDateTime) return;
-
-    const formatted = selectedDateTime.replace("T", " ");
-
-    fetch(`http://127.0.0.1:5000/predict?beach=${encodeURIComponent(beachSearch)}&datetime=${formatted}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) {
-          setPredictionError(data.error);
-          setPredictionData(null);
-        } else {
-          setPredictionData(data);
-          setPredictionError("");
-        }
-      })
-      .catch(err => console.error(err));
-  };
-  
   const handleLeaderboardClick = (beachName) => {
     setBeachSearch(beachName);
     setTimeout(() => { fetchBSI(); }, 100); 
     window.scrollTo(0, 0); 
-  };
-  
-  const handleReviewSubmitted = () => {
-    setShowReviewForm(false);
-    fetchBSI(); 
   };
   
   if (!user) {
@@ -146,124 +111,123 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        
-        <div className="header-top-row">
-          <h1>BeachBuddy India</h1>
-          <div className="header-buttons">
-            <button onClick={() => setViewMode('profile')} className="profile-button">
-              My Profile
-            </button>
-            <button onClick={handleLogout} className="logout-button">
-              Log Out
-            </button>
+      
+      {/* Navbar sitting above the hero */}
+      <div className="header-top-row" style={{ padding: '20px 40px', background: '#2c3e50', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+        <h1 style={{ cursor: 'pointer', margin: 0, color: 'white', fontSize: '24px' }} onClick={() => setCurrentPage('home')}>
+          🌊 BeachBuddy India
+        </h1>
+        <div className="header-buttons">
+          <button onClick={() => setViewMode('profile')} className="profile-button" style={{ marginRight: '10px' }}>
+            My Profile
+          </button>
+          <button onClick={handleLogout} className="logout-button">
+            Log Out
+          </button>
+        </div>
+      </div>
+      
+      {currentPage === 'home' && viewMode === 'home' && (
+        <div style={{
+          position: 'relative',
+          backgroundImage: 'url("https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?q=80&w=1920&auto=format&fit=crop")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          padding: '120px 20px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+          marginBottom: '40px'
+        }}>
+          {/* Dark Overlay so text is readable */}
+          <div style={{
+            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.4)', zIndex: 1
+          }}></div>
+
+          <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', maxWidth: '800px' }}>
+            <h1 style={{ color: 'white', fontSize: '3.5rem', marginBottom: '15px', textShadow: '2px 4px 8px rgba(0,0,0,0.5)', fontWeight: '800' }}>
+              Discover India's Best Beaches
+            </h1>
+            <p style={{ color: '#f0f0f0', fontSize: '1.4rem', marginBottom: '40px', textShadow: '1px 2px 4px rgba(0,0,0,0.5)' }}>
+              Live conditions, AI predictions, and community reviews.
+            </p>
+
+            {/* Glassmorphism Search Console */}
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(15px)',
+              padding: '25px',
+              borderRadius: '20px',
+              display: 'inline-flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              gap: '15px',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+            }}>
+              <input
+                type="text"
+                value={beachSearch}
+                onChange={(e) => setBeachSearch(e.target.value)}
+                placeholder="e.g. Baga Beach, Palolem"
+                style={{
+                  padding: '16px 24px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  width: '350px',
+                  fontSize: '18px',
+                  outline: 'none',
+                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
+                }}
+              />
+              <button 
+                onClick={fetchBSI} 
+                disabled={loading}
+                style={{
+                  padding: '16px 32px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  backgroundColor: '#00a8ff',
+                  color: 'white',
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 4px 15px rgba(0, 168, 255, 0.4)',
+                  transition: 'transform 0.2s ease'
+                }}
+                onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'}
+                onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+              >
+                {loading ? "Checking..." : "Check Suitability"}
+              </button>
+            </div>
           </div>
         </div>
-        
-        <p>Find the best beach conditions right now.</p>
-        
-        {viewMode === 'home' && (
-          <div className="input-container">
-            <input
-              type="text"
-              value={beachSearch}
-              onChange={(e) => setBeachSearch(e.target.value)}
-              placeholder="Enter beach name"
-            />
-            <button onClick={fetchBSI} disabled={loading}>
-              {loading ? "Checking..." : "Check Suitability"}
-            </button>
-          </div>
-        )}
-      </header>
+      )}
       
       {viewMode === 'home' ? (
         <>
-          {leaderboardLoading ? (
-            <LoadingSpinner />
-          ) : (
-            <Leaderboard beaches={leaderboard} onBeachClick={handleLeaderboardClick} />
-          )}
-
-          {loading && <LoadingSpinner />}
-
-          {bsiData && (
-            <div className={`results-card ${bsiData.image_url ? 'with-image' : ''}`}>
-              
-              {bsiData.image_url && (
-                <div 
-                  className="card-image-header"
-                  style={{ backgroundImage: `url(${bsiData.image_url})` }}
-                ></div>
+          {currentPage === "home" ? (
+            <>
+              {leaderboardLoading ? (
+                <LoadingSpinner />
+              ) : (
+                <Leaderboard
+                  beaches={leaderboard}
+                  onBeachClick={handleLeaderboardClick}
+                />
               )}
 
-              <div className="card-content-wrapper">
-
-                {bsiData.rating.startsWith("Error:") ? (
-                  <h3 className="rating">{bsiData.rating}</h3>
-                ) : (
-                  <>
-                    <div className="card-header">
-                      <h2>{bsiData.city}</h2>
-                    </div>
-
-                    <div className="rating-with-icon">
-                      <WeatherIcon iconCode={bsiData.weather_icon} size={64} />
-                      <h3 className="rating">{bsiData.rating}</h3>
-                    </div>
-
-                    <div className="details">
-                      <p><strong>BSI Score:</strong> {bsiData.bsi_score}</p>
-                      <p><strong>Temp:</strong> {bsiData.temperature}°C</p>
-                      <p><strong>Wind:</strong> {bsiData.wind_speed} km/h</p>
-                      <p><strong>Tide:</strong> {bsiData.tide_height_m} m</p>
-                    </div>
-
-                    <p className="advice-text">
-                      💡 {bsiData.advice}
-                    </p>
-
-                    <BeachAI data={bsiData} />
-
-                    {/* 🔮 NEW FUTURE PREDICTION */}
-                    <div className="prediction-container">
-                      <h2>🔮 Future Prediction</h2>
-
-                      <input
-                        type="datetime-local"
-                        value={selectedDateTime}
-                        onChange={(e) => setSelectedDateTime(e.target.value)}
-                      />
-
-                      <button onClick={handlePrediction}>
-                        Predict
-                      </button>
-
-                      {predictionError && <p className="error">{predictionError}</p>}
-
-                      {predictionData && (
-                        <div className="prediction-result">
-                          <p><strong>Time:</strong> {predictionData.time}</p>
-                          <p><strong>Temp:</strong> {predictionData.temp}°C</p>
-                          <p><strong>Wind:</strong> {predictionData.wind} km/h</p>
-                          <p><strong>Rain:</strong> {predictionData.rain} mm</p>
-                          <h3>{predictionData.bsi} - {predictionData.rating}</h3>
-                        </div>
-                      )}
-                    </div>
-                    <MapView 
-                    lat={bsiData.lat} 
-                    lon={bsiData.lon} 
-                    name={bsiData.city} 
-                    />
-                    
-                    <AverageRatings averages={bsiData.average_ratings} />
-                    <ReviewList beachName={bsiData.city} />
-
-                  </>
-                )}
-              </div>
-            </div>
+              {loading && <LoadingSpinner />}
+            </>
+          ) : (
+            <BeachDetails
+              bsiData={bsiData}
+              onBackToHome={() => setCurrentPage("home")}
+            />
           )}
         </>
       ) : (
