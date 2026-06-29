@@ -17,16 +17,23 @@ function LoadingSpinner() {
 }
 
 function App() {
-  const [beachSearch, setBeachSearch] = useState("Baga Beach");
-  const [bsiData, setBsiData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [forecast, setForecast] = useState([]);
-  const [leaderboard, setLeaderboard] = useState([]);
-  const [leaderboardLoading, setLeaderboardLoading] = useState(true);
-  const [user, setUser] = useState(null);
-  const [showReviewForm, setShowReviewForm] = useState(false);
-  const [viewMode, setViewMode] = useState('home');
-  const [currentPage, setCurrentPage] = useState("home");
+   const [beachSearch, setBeachSearch] = useState("Baga Beach");
+const [bsiData, setBsiData] = useState(null);
+const [loading, setLoading] = useState(false);
+
+// We only use setForecast, so ignore the first variable
+const [, setForecast] = useState([]);
+
+const [leaderboard, setLeaderboard] = useState([]);
+const [leaderboardLoading, setLeaderboardLoading] = useState(true);
+
+const [user, setUser] = useState(null);
+
+// We only use setShowReviewForm, so ignore the first variable
+const [, setShowReviewForm] = useState(false);
+
+const [viewMode, setViewMode] = useState('home');
+const [currentPage, setCurrentPage] = useState("home");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
