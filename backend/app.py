@@ -9,7 +9,7 @@ from algorithm import calculate_bsi
 from datetime import datetime, timedelta
 
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials, firestore, auth
 
 # 1. CREATE THE APP FIRST! (This fixes the NameError)
 load_dotenv()
